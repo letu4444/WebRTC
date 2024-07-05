@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Clone Zoom với Stringee hihi</title>
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+       .chat{
+        height: 100px;
+        width: 50%;
+        display: flex;
+        align-items: center;
+       }
+       .chat1-1{
+         height: 25px;
+       }
+       .chat1-1:focus{
+         outline: none;
+       }
+       .chat1{
+         height: 30px;
+         background-color: #ee4d2d;
+         color: #ffff;
+         border: none;
+         border-radius: 4px;
+         margin-left: 5px;
+       }
+       .chat2{
+         width: 50%;
+         height: 500px;
+         display: none;
+         flex-direction: column;
+         margin: 15px;
+       }
+       .chat2-1{
+        height: 30px;
+        margin-bottom: 10px;
+       }
+      .chat2-3{
+        min-height: 70px;
+      }
+      .chat2-4{
+        margin-top: 10px;
+      }
+      .chat2-4-1{
+        list-style: none;
+        padding: 10px 0px;
+      }
+      .chat2-5{
+        min-height: 100px;
+      }
+      .chat2-6{
+        display: flex;
+        align-items: center;
+        height: 50px;
+        width: 100%;
+      }
+      .chat2-6-1{
+        width: 85%;
+        height: 100%;
+        line-height: 50px;
+      }
+      .chat2-6-2{
+        width: 15%;
+
+      }
+      .chat2-6-3,.chat2-6-4{
+        color: blue;
+        padding: 10px;
+        cursor: pointer;
+      }
+      .chat2-6-3 > .fa,.chat2-6-4 > .fa{
+         fill: currentColor;
+         font-size: 20px;
+
+      }
+      .chat2-7{
+        height: 300px;
+      }
+      .chat2-8{
+        display: flex;
+        align-items: center;
+        height: 50px;
+      }
+      .chat2-8-1{
+        height: 50px;
+        width: 80%;
+      }
+      .send{
+        height: 54px;
+        width: 50px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      .bao{
+        width: 50%;
+        height: 100%;
+        transform: translate(140px, -250px);
+        display: none;
+      }
+      .bao1{
+        width: 300px;
+        height: 100px;
+        border: 1px solid #cccc;
+        border-radius: 5px
+      }
+      .bao1-2{
+        height: 40px;
+        line-height: 40px;
+        padding-left: 20px;
+      }
+      .bao1-4{
+        height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+      }
+      .bao1-5{
+        height: 30px;
+        background-color: #005affe0;
+        color: #fff;
+        font-size: 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        left: 14px;
+        position: absolute;
+        width: 100px;
+      }
+      .bao1-6{
+        position: absolute;
+        right: 14px;
+        height: 30px;
+        background-color: #ee4d2d;
+        color: #fff;
+        font-size: 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat">
+      <input type="text" class="chat1-1" placeholder="Tên đăng nhập" value="">
+      <button class="chat1">Nhập tên</button>
+    </div>
+    <div class="chat2">
+      <div class="chat2-1">Tên đăng nhập: <span class="chat2-2"></span></div>
+      <div class="chat2-3">
+        <span class="chat2-4">Danh sách người chat</span>
+        <div class="chat2-4-2">
+		<li class="chat2-4-1">Anh</li>
+          
+        </div>
+      </div>
+      <div class="chat2-5">
+        <div class="chat2-6">
+          <div class="chat2-6-1">Tên nguoi chat</div>
+          <div class="chat2-6-2">
+            <span class="chat2-6-3"><i class="fa fa-volume-control-phone"></i></span>
+            <span class="chat2-6-4"><i class="fa fa-video-camera"></i></span>
+          </div>
+        </div>
+        <div class="chat2-7"></div>
+        <div class="chat2-8">
+          <input type="text" class="chat2-8-1" placeholder="Nhập nội dung vào">
+          <button class="send">
+            <i class="fa fa-send-o"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+        <div class="bao">
+      <div class="bao1">
+        <div class="bao1-2">
+          <span class="bao1-3">Thu</span>
+          đang gọi cho bạn
+        </div>
+        <div class="bao1-4">
+          <button class="bao1-5">Hủy</button>
+          <button class="bao1-6">Chấp nhận</button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+   <script src="stomp.js"></script>
+  <script src="main.js"></script>
+ 
+</html>

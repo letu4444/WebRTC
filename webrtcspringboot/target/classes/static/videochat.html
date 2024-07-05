@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sender</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+       <style type="text/css">
+       #video-call-div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#local-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 16px;
+    border-radius: 16px;
+    max-width: 20%;
+    max-height: 20%;
+    background: #ffffff;
+    transform: scaleX(-1);
+    z-index:1;
+}
+
+
+
+#remote-video {
+    background: #000000;
+    width: 100%;
+    height: 100%;
+   transform:scalex(-1);
+}
+
+
+
+.call-action-div {
+    position: absolute;
+    left: 45%;
+    bottom: 32px;
+    display: flex;
+}
+
+button {
+    cursor: pointer;
+}
+    .chat1{
+    height: 35px;
+    border-radius: 50%;
+    border: none;
+    width: 35px;
+    margin-right: 10px;
+}
+.fas{
+   font-size: 20px;
+
+}
+.fa-solid{
+    font-size: 20px;
+}   
+       </style>
+    </head>
+    <body>
+     
+        <div id="video-call-div">
+            <video muted id="local-video" autoplay></video>
+            <video id="remote-video" autoplay></video>
+            <div class="call-action-div">
+                <button onclick="muteVideo()" class="chat1"><i class='fas fa-video video'></i></button>
+                <button onclick="muteAudio()" class="chat1"><i class='fas fa-microphone mic'></i></button>
+                <button onclick="muteCamera()" class="chat1"><i class="fa-solid fa-camera-rotate"></i></button>
+            </div>
+        </div>
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        
+        <script>
+			var webSocket = new WebSocket('ws://localhost:8187/socket1');
+            webSocket.onmessage = (event) => {
+            handleSignallingData(JSON.parse(event.data))
+}
+
+function handleSignallingData(data) {
+	console.log(data);
+	console.log(data.username);
+    switch (data.type) {
+        case "offer":
+            peerConn.setRemoteDescription(data.offer)
+            createAndSendAnswer()
+            break
+         case "answer":
+            peerConn.setRemoteDescription(data.answer)
+            break
+        case "candidate":
+            peerConn.addIceCandidate(data.candidate)
+    }
+}
+webSocket.onopen = (event) => {
+	
+	startCall();
+	
+}
+function sendData(data) {
+   
+    webSocket.send(JSON.stringify(data))
+}
+
+function createAndSendAnswer () {
+    peerConn.createAnswer((answer) => {
+        peerConn.setLocalDescription(answer)
+        sendData({
+            type: "answer",
+            answer: answer
+        })
+    }, error => {
+        console.log(error)
+    })
+}
+
+
+
+let iscamera = true
+let localStream
+let peerConn
+
+const constraints = {
+	video: {
+            frameRate: 24,
+            width: {
+                min: 480, ideal: 720, max: 1280
+            },
+            aspectRatio: 1.33333
+        },
+        audio: true
+}
+//Dừng tất ca cái cũ đi
+function  stopVideoStream(){
+	if(localStream){
+		  const a = localStream.getVideoTracks();
+    localStream.getVideoTracks().forEach(track => {
+		if (track.readyState == 'live' && track.kind === 'video') {
+			track.stop();
+		}
+	});
+	}
+	
+}
+//Bắt đầu chạy
+function startCamera() {
+    document.getElementById("video-call-div").style.display = "inline"
+     stopVideoStream();
+//nếu iscamera == true thì sẽ là cam trước
+ constraints.video.facingMode = iscamera ?  "user" : "environment";
+    navigator.getUserMedia(
+        constraints
+    , (stream) => {
+        localStream = stream
+        document.getElementById("local-video").srcObject = localStream
+         peerConn.addStream(stream)
+            peerConn.onaddstream = (e) => {
+            document.getElementById("remote-video")
+            .srcObject = e.stream
+        }
+        
+    }, (error) => {
+        console.log(error)
+    })
+}
+
+//Chay trương trình 
+function startCall(){
+    document.getElementById("video-call-div").style.display = "inline"
+     stopVideoStream();
+//nếu iscamera == true thì sẽ là cam trước
+ constraints.video.facingMode = iscamera ?  "user" : "environment";
+    navigator.getUserMedia(
+        constraints
+    , (stream) => {
+        localStream = stream
+        document.getElementById("local-video").srcObject = localStream
+        
+            let configuration = {
+            iceServers: [
+                {
+                    "urls": ["stun:stun.l.google.com:19302", 
+                    "stun:stun1.l.google.com:19302", 
+                    "stun:stun2.l.google.com:19302"]
+                }
+            ]
+        }
+        peerConn = new RTCPeerConnection(configuration)
+       
+       
+		   peerConn.addStream(stream)
+		        peerConn.onaddstream = (e) => {
+            document.getElementById("remote-video")
+            .srcObject = e.stream
+        }
+	   
+   
+
+        peerConn.onicecandidate = ((e) => {
+            if (e.candidate == null)
+                return
+            sendData({
+                type: "candidate",
+                candidate: e.candidate
+            })
+        })
+
+        createAndSendOffer()
+
+        
+    }, (error) => {
+        console.log(error)
+    })
+        
+ 
+	console.log(localStream);
+}
+
+
+
+
+
+function createAndSendOffer() {
+    peerConn.createOffer((offer) => {
+        sendData({
+            type: "offer",
+            offer: offer
+        })
+
+        peerConn.setLocalDescription(offer)
+    }, (error) => {
+        console.log(error)
+    })
+}
+let isAudio = true
+function muteAudio() {
+    isAudio = !isAudio
+    if(isAudio == false){
+                   $('.mic').removeClass("fa-microphone-slash");
+                   $('.mic').addClass("fa-microphone");
+                   localStream.getAudioTracks()[0].enabled = true
+
+               }else{
+                $('.mic').removeClass("fa-microphone");
+                $('.mic').addClass("fa-microphone-slash");
+                localStream.getAudioTracks()[0].enabled = false
+      }
+    
+}
+
+let isVideo = true
+function muteVideo() {
+    isVideo = !isVideo
+  /*  localStream.getVideoTracks()[0].enabled = isVideo*/
+  const a = localStream.getVideoTracks();
+    localStream.getVideoTracks().forEach(track => {
+		if (track.readyState == 'live' && track.kind === 'video') {
+			track.enabled = isVideo;
+		}
+	});
+	if(isVideo == false){
+                   $('.video').removeClass("fa-video");
+                   $('.video').addClass("fa-video-slash");
+
+    }else{
+                $('.video').removeClass("fa-video-slash");
+                $('.video').addClass("fa-video");
+               
+    }
+}
+
+
+function muteCamera(){
+	iscamera = !iscamera;
+    startCall();	
+}
+console.log(localStream);
+
+
+		</script>
+    </body>
+
+</html> 
